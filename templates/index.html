@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notes App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+
+<body>
+    <div class="home-card">
+        <h1 class="home-title">Welcome to the Notes App</h1>
+        <p class="home-description">
+            Create, manage, and organize your notes easily.
+        </p>
+        <a href="{{ url_for('register') }}" class="button register-button">Register</a>
+        <a href="{{ url_for('login') }}" class="button login-button">Login</a>
+    </div>
+</body>
+
+</html>

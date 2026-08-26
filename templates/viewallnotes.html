@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='viewallnotes.css') }}">
+</head>
+
+<body>
+    <main class="notes-page">
+        <div class="notes-container">
+            <h1 class="notes-heading">Notes</h1>
+            <div class="notes-table-wrapper">
+                <table class="notes-table">
+                    <thead class="notes-table-head">
+                        <tr class="notes-table-row">
+                            <th class="notes-table-header notes-id-column">Note ID</th>
+                            <th class="notes-table-header notes-heading-column">Heading</th>
+                            <th class="notes-table-header">Note Title</th>
+                            <th class="notes-table-header notes-date-column">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="notes-table-row">
+                            <td class="notes-table-data notes-id-column">1</td>
+                            <td class="notes-table-data notes-heading-column">Sample Note</td>
+                            <td class="notes-table-data">This is a sample note content.</td>
+                            <td class="notes-table-data notes-date-column">2023-10-01 10:00:00</td>
+                        </tr>
+
+                        <tr class="notes-table-row">
+                            <td class="notes-table-data notes-id-column">2</td>
+                            <td class="notes-table-data notes-heading-column">Another Note</td>
+                            <td class="notes-table-data">This is another note content.</td>
+                            <td class="notes-table-data notes-date-column">2023-10-02 11:00:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

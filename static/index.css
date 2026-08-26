@@ -1,0 +1,53 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fb;
+}
+
+.home-card {
+    width: 450px;
+    padding: 40px;
+    text-align: center;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.home-title {
+    margin-bottom: 10px;
+    font-size: 30px;
+    color: #222;
+}
+
+.home-description {
+    margin-bottom: 30px;
+    color: #777;
+    font-size: 16px;
+}
+
+.button {
+    display: inline-block;
+    padding: 11px 25px;
+    margin: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.register-button {
+    background-color: #111827;
+    color: white;
+}
+
+.login-button {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.button:hover {
+    opacity: 0.85;
+}

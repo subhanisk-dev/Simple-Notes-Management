@@ -1,0 +1,191 @@
+body {
+    background-color: #f4f7fb;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.main-navbar {
+    min-height: 70px;
+    background-color: #172554;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    background-color: #2563eb;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-name {
+    color: #ffffff;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.nav-details {
+    position: relative;
+}
+
+.nav-summary {
+    list-style: none;
+    cursor: pointer;
+    color: #dbeafe;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.nav-summary::-webkit-details-marker {
+    display: none;
+}
+
+.nav-summary:hover {
+    background-color: #1e3a8a;
+    color: #ffffff;
+}
+
+.custom-dropdown {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 200px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.custom-dropdown a {
+    display: block;
+    padding: 12px 16px;
+    color: #334155;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.custom-dropdown a:hover {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.search-input {
+    width: 180px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+}
+
+.search-btn:hover {
+    background-color: #1d4ed8;
+    color: white;
+}
+
+.logout-btn {
+    border: 1px solid #ef4444;
+    color: #fecaca;
+    background-color: transparent;
+}
+
+.logout-btn:hover {
+    background-color: #ef4444;
+    color: white;
+}
+
+.welcome-section {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.welcome-icon {
+    width: 75px;
+    height: 75px;
+    background-color: #dbeafe;
+    color: #2563eb;
+    border-radius: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+.welcome-title {
+    color: #0f172a;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.welcome-text {
+    color: #64748b;
+    font-size: 17px;
+}
+
+@media (max-width: 768px) {
+    .search-input {
+        width: 130px;
+    }
+
+    .welcome-title {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-navbar {
+        padding: 15px 0;
+    }
+
+    .navbar-content {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .brand-area {
+        width: 100%;
+    }
+
+    .navigation-area {
+        width: 100%;
+    }
+
+    .right-area {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .search-container {
+        flex-grow: 1;
+    }
+
+    .custom-dropdown {
+        position: static;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .welcome-title {
+        font-size: 25px;
+    }
+
+    .welcome-text {
+        font-size: 15px;
+    }
+}
