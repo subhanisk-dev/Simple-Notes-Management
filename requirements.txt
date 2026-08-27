@@ -1,0 +1,5 @@
+flask
+flask-session
+
+dotenv-python
+mysql-connector-python

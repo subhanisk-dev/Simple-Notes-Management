@@ -11,6 +11,13 @@
 
 <body>
     <div class="login-card">
+        {% with messages =get_flashed_messages() %}
+        {% if messages%}
+        {% for message in messages %}
+        {{message}}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
         <h2 class="login-title">Welcome Back</h2>
         <p class="login-subtitle">
             Login to your account

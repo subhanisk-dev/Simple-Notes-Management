@@ -10,6 +10,13 @@
 
 <body>
     <div class="otp-card">
+        {% with messages =get_flashed_messages() %}
+        {% if messages%}
+        {% for message in messages %}
+        {{message}}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
         <h2 class="otp-title">Verify OTP</h2>
         <p class="otp-description">
             Enter the OTP sent to your email

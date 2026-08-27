@@ -13,6 +13,13 @@
 
 <body>
     <nav class="main-navbar">
+        {% with messages =get_flashed_messages() %}
+        {% if messages%}
+        {% for message in messages %}
+        {{message}}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
         <div class="container-fluid px-4">
             <div class="navbar-content d-flex align-items-center w-100">
                 <div class="brand-area d-flex align-items-center me-4">
@@ -47,7 +54,7 @@
                         </div>
                     </details>
                 </div>
-
+                <p style="color: azure;">{{session.get('user')}}</p>
                 <div class="right-area ms-auto d-flex align-items-center gap-2">
                     <div class="search-container input-group bg-white rounded overflow-hidden">
                         <input type="text" class="form-control search-input border-0 shadow-none"
@@ -58,9 +65,10 @@
                         </button>
                     </div>
 
-                    <button type="button" class="btn logout-btn px-3">
-                        Log Out
-                    </button>
+                    <a href="{{url_for('userlogout')}}"><button type="button" class="btn logout-btn px-3">
+                            Log Out
+                        </button>
+                    </a>
                 </div>
             </div>
         </div>
