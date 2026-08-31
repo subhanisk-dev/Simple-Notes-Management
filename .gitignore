@@ -3,3 +3,5 @@
 snmenv
 
 __pycache__
+
+flask_session

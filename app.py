@@ -97,7 +97,8 @@ def otp_verify(useremail):
             return redirect(url_for('login'))
         return render_template('otp.html')
     except Exception as e:
-        print(e)
+        mydb.rollback()
+        print("error In otp Verify",e)
         return redirect(url_for('otp_verify',useremail=useremail))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -143,22 +144,68 @@ def dashboard():
 
 @app.route('/addnotes',methods=['GET','POST'])
 def addnotes():
-    if not session.get('user'):
-            flash('To access dashboard pls login first')
-            return redirect(url_for('login'))
-    if request.method=='POST':
-        #access the note details
-        #store in db
-        return redirect(url_for('dashboard'))
-    return render_template('addnotes.html')
+    try:
+        if not session.get('user'):
+                flash('To access dashboard pls login first')
+                return redirect(url_for('login'))
+        if request.method=='POST':
+            print(request.form)
+            Notestitle=request.form.get('title')
+            Notescontent=request.form.get('content')
+            if not Notestitle:
+                flash('Title is Required')
+                return redirect(url_for('addnotes'))
+            mydb.ping(reconnect=True)
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute('select userid from userdata where useremail=%s',[session.get('user')])
+            userid=cursor.fetchone()
+            if not userid:
+                flash('User not Found Pls check')
+            cursor.execute('insert into notesdata(notestitle,notescontent,added_by) values(%s,%s,%s)',[Notestitle,Notescontent,userid[0]])
+            mydb.commit()
+            cursor.close()
+            flash(f'Notes Added successfully {Notestitle}')
+            return redirect(url_for('addnotes'))
+        return render_template('addnotes.html')
+    except Exception as e:
+        print('Error in added Notes',e)
+        flash('Could add notes')
+        return redirect(url_for('addnotes'))
 
-@app.route('/viewnotes',methods=['GET'])
-def viewnotes():
-    if not session.get('user'):
+@app.route('/viewallnotes',methods=['GET'])
+def viewallnotes():
+    try:
+        if not session.get('user'):
+                flash('To access dashboard pls login first')
+                return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor=mydb.cursor(buffered=True)
+        cursor.execute('select notesid,notestitle,created_at from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s',[session.get('user')])
+        notes_data=cursor.fetchall()
+        print(notes_data)
+        return render_template('viewallnotes.html',notes_data=notes_data)
+    except Exception as e:
+        print("Error in Fetching",e)
+        flash("Couldn't fetch ")
+        return redirect(url_for('dashboard'))
+
+@app.route('/viewnotes/<notesid>',methods=['GET'])
+def viewnotes(notesid):
+    try:
+        if not session.get('user'):
             flash('To access dashboard pls login first')
             return redirect(url_for('login'))
-    #fetch all notes from db
-    return render_template('viewallnotes.html')
+        mydb.ping(reconnect=True)
+        cursor=mydb.cursor(buffered=True)
+        cursor.execute("select notesid,notestitle,notescontent,created_at from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s and notes_data.notesid=%s",[session.get('user'),notesid])
+        data=cursor.fetchone()
+        print(data)
+        return render_template('viewallnotes.html',data=data)
+    except Exception as e:
+            print("Error in Fetching",e)
+            flash("Couldn't fetch ")
+            return redirect(url_for('dashboard'))
+
 
 @app.route('/userlogout',methods=['GET'])
 def userlogout():
