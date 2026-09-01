@@ -1,4 +1,4 @@
-from flask import Flask,flash,render_template, request, redirect, url_for,session #create client-side-server data
+from flask import Flask,flash,render_template,request,redirect,url_for,session #create client-side-server data
 from flask_session import Session #Stores secure server side session
 
 import os
@@ -62,7 +62,7 @@ def register():
             return redirect(url_for('otp_verify',useremail=useremail))
         return render_template('register.html')
     except Exception as e:
-        print(e)
+        print("Error Occurred at ",e)
         return redirect(url_for('register'))
 
 @app.route('/otp_verify/<useremail>', methods=['GET', 'POST'])
@@ -98,7 +98,7 @@ def otp_verify(useremail):
         return render_template('otp.html')
     except Exception as e:
         mydb.rollback()
-        print("error In otp Verify",e)
+        print("Error Occurred at ",e)
         return redirect(url_for('otp_verify',useremail=useremail))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -197,15 +197,56 @@ def viewnotes(notesid):
             return redirect(url_for('login'))
         mydb.ping(reconnect=True)
         cursor=mydb.cursor(buffered=True)
-        cursor.execute("select notesid,notestitle,notescontent,created_at from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s and notes_data.notesid=%s",[session.get('user'),notesid])
+        cursor.execute("select notesid,notestitle,notescontent,created_at from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s and notesdata.notesid=%s",[session.get('user'),notesid])
         data=cursor.fetchone()
         print(data)
-        return render_template('viewallnotes.html',data=data)
+        return render_template('viewnotes.html',data=data)
     except Exception as e:
             print("Error in Fetching",e)
             flash("Couldn't fetch ")
             return redirect(url_for('dashboard'))
 
+@app.route('/updatenotes/<notesid>',methods=['GET','POST'])
+def updatenotes(notesid):
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor=mydb.cursor(buffered=True)
+        if request.method=='POST':
+            Notestitle=request.form.get('title')
+            Notescontent=request.form.get('content')
+            cursor.execute("update notesdata set notestitle=%s,notescontent=%s where notesid=%s",[Notestitle,Notescontent,notesid])
+            mydb.commit()
+            flash('Notes Updated Successfully')
+            return redirect(url_for('viewallnotes'))
+        cursor.execute("select notesid,notestitle,notescontent from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s and notesdata.notesid=%s",[session.get('user'),notesid])
+        data=cursor.fetchone()
+        print(data)
+        return render_template('updatenotes.html',data=data)
+    except Exception as e:
+        print("Error in Fetching",e)
+        flash("Couldn't fetch ")
+        return redirect(url_for('dashboard'))
+
+@app.route('/delete/<notesid>',methods=['GET'])
+def delete_notes(notesid):
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor=mydb.cursor(buffered=True)
+        cursor.execute("delete from notesdata where notesid=%s",[notesid])
+        mydb.commit()
+        cursor.close()
+        flash('Note deleted successfully')
+        return redirect(url_for('viewallnotes'))
+    except Exception as e:
+        print("Error in deleting note",e)
+        flash("Couldn't delete note")
+        return redirect(url_for('dashboard'))
 
 @app.route('/userlogout',methods=['GET'])
 def userlogout():
