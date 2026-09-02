@@ -1,28 +1,29 @@
 {% extends 'dashboard.html' %}<!--  it will inherit dashboard page -->
 {% block title %}<title>View Notes</title>{% endblock %}
-{% block addcss %}<link rel="stylesheet" href="{{url_for('static',filename='addnotes.css')}}"/>{% endblock %}
+{% block addcss %}
+<link rel="stylesheet" href="{{url_for('static',filename='addnotes.css')}}" />{% endblock %}
 
 {% block content %}
 <div class="content">
     <div class="note-card">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-            {% for message in messages %}
-            {{ message }}
-            {% endfor %}
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
         {% endif %}
         {% endwith %}
         {% if data %}
         <h2 class="note-title">View Notes</h2>
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" value="{{data[1]}}" readonly>
-            </div>
-            <div class="form-group">
-                <label for="content">Content</label>
-                <textarea id="content" name="content" readonly>{{data[2]}}</textarea>
-            </div>  
-            {{data[3]}}
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{data[1]}}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea id="content" name="content" readonly>{{data[2]}}</textarea>
+        </div>
+        {{data[3]}}
         {% else %}
         <p>No notes found</p>
         {% endif %}

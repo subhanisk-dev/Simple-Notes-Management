@@ -1,3 +1,5 @@
+from turtle import title
+
 from flask import Flask,flash,render_template,request,redirect,url_for,session #create client-side-server data
 from flask_session import Session #Stores secure server side session
 
@@ -93,7 +95,7 @@ def otp_verify(useremail):
             cursor.execute("update userdata set otp=null,otp_expiry_time=null,account_status= 'active' where useremail=%s",[useremail])
             mydb.commit()
             cursor.close()
-            flash('OTP Verified Successfuly')
+            flash('OTP Verified Successfuly & Registered Successfully')
             return redirect(url_for('login'))
         return render_template('otp.html')
     except Exception as e:
@@ -215,16 +217,21 @@ def updatenotes(notesid):
         mydb.ping(reconnect=True)
         cursor=mydb.cursor(buffered=True)
         if request.method=='POST':
-            Notestitle=request.form.get('title')
-            Notescontent=request.form.get('content')
-            cursor.execute("update notesdata set notestitle=%s,notescontent=%s where notesid=%s",[Notestitle,Notescontent,notesid])
+            updated_title=request.form.get('title')
+            updated_content=request.form.get('content')
+            cursor.execute("update notesdata set notestitle=%s,notescontent=%s where notesid=%s and added_by=(select userid from userdata where useremail=%s)",[updated_title,updated_content,notesid,session.get('user')])
             mydb.commit()
             flash('Notes Updated Successfully')
             return redirect(url_for('viewallnotes'))
+
         cursor.execute("select notesid,notestitle,notescontent from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s and notesdata.notesid=%s",[session.get('user'),notesid])
         data=cursor.fetchone()
+        if not data:
+            flash('Notes Not Found')
+            return redirect(url_for('viewallnotes'))
         print(data)
         return render_template('updatenotes.html',data=data)
+    
     except Exception as e:
         print("Error in Fetching",e)
         flash("Couldn't fetch ")
@@ -236,9 +243,17 @@ def delete_notes(notesid):
         if not session.get('user'):
             flash('To access dashboard pls login first')
             return redirect(url_for('login'))
+        if not notesid:
+            flash('Notes ID Not Found')
+            return redirect(url_for('viewallnotes'))
         mydb.ping(reconnect=True)
         cursor=mydb.cursor(buffered=True)
-        cursor.execute("delete from notesdata where notesid=%s",[notesid])
+        cursor.execute("select notesid from notesdata inner join userdata on notesdata.added_by=userdata.userid where userdata.useremail=%s and notesdata.notesid=%s",[session.get('user'),notesid])
+        data=cursor.fetchone()
+        if not data:
+            flash('Notes Not Found')
+            return redirect(url_for('viewallnotes'))
+        cursor.execute("delete from notesdata where notesid=%s and added_by=(select userid from userdata where useremail=%s)",[notesid, session.get('user')])
         mydb.commit()
         cursor.close()
         flash('Note deleted successfully')
@@ -247,6 +262,36 @@ def delete_notes(notesid):
         print("Error in deleting note",e)
         flash("Couldn't delete note")
         return redirect(url_for('dashboard'))
+
+@app.route('/uploadfile',methods=['GET','POST'])
+def uploadfile():
+    if not session.get('user'):
+        flash('To access dashboard pls login first')
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        filedata=request.files.get('file')
+        fdata=filedata.read()
+        filename=filedata.filename
+        mydb.ping(reconnect=True)
+        cursor = mydb.cursor(buffered=True)
+        cursor.execute("INSERT INTO filesdata (filename, filedata,added_by) VALUES (%s, %s, (SELECT userid FROM userdata WHERE useremail = %s))", (filename, fdata, session.get('user')))
+        mydb.commit()
+        cursor.close()
+        flash('File uploaded successfully')
+        return redirect(url_for('dashboard'))
+    return render_template('uploadfile.html')
+
+@app.route('/viewallfiles',methods=['GET'])
+def viewallfiles():
+    if not session.get('user'):
+        flash('To access dashboard pls login first')
+        return redirect(url_for('login'))
+    mydb.ping(reconnect=True)
+    cursor = mydb.cursor(buffered=True)
+    cursor.execute("SELECT filesid, filename, created_at FROM filesdata WHERE added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [session.get('user')])
+    files_data = cursor.fetchall()
+    cursor.close()
+    return render_template('viewallfiles.html', files_data=files_data)
 
 @app.route('/userlogout',methods=['GET'])
 def userlogout():

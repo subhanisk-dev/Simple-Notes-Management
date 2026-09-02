@@ -1,19 +1,35 @@
 {% extends "dashboard.html" %}
-
-{% block addcss %}<link rel="stylesheet" href="{{ url_for('static', filename='addnotes.css') }}">{% endblock %}
+{% block title %}<title>Update Note</title>{% endblock %}
+{% block addcss %}
+<link href="/static/addnotes.css" rel="stylesheet">{% endblock %}
 {% block content %}
-    <div class="container">
-        <h2 style="text-align: center; margin-bottom: 10px; margin-top: 10px;">Update Note</h2>
-        <form method="POST">
+<div class="content">
+    <div class="note-card">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <h2 class="note-title">Update Note</h2>
+        <p class="note-subtitle">
+            Write down your thoughts and ideas
+        </p>
+        <form method="post">
             <div class="form-group">
-                <label for="title">Note Title:</label>
-                <input type="text" class="form-control" id="title" name="title" value="{{ data[1] }}" required>
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" value="{{ data[1] }}" required>
             </div>
             <div class="form-group">
-                <label for="content">Note Content:</label>
-                <textarea class="form-control" id="content" name="content" rows="5" required>{{ data[2] }}</textarea>
+                <label for="content">Content</label>
+                <textarea id="content" name="content" placeholder="Write your note here...">{{ data[2] }}</textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Update Note</button>
+            <button type="submit" class="add-button">
+                Update Note
+            </button>
         </form>
+        <a href="{{ url_for('viewallnotes') }}" class="back-link">Back to Notes</a>
     </div>
+</div>
 {% endblock %}

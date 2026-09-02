@@ -13,13 +13,6 @@
 
 <body>
     <nav class="main-navbar">
-        {% with messages =get_flashed_messages() %}
-        {% if messages%}
-        {% for message in messages %}
-        {{message}}
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
         <div class="container-fluid px-4">
             <div class="navbar-content d-flex align-items-center w-100">
                 <div class="brand-area d-flex align-items-center me-4">
@@ -44,11 +37,11 @@
                             Files ▼
                         </summary>
                         <div class="custom-dropdown">
-                            <a href="#">
+                            <a href="{{url_for('uploadfile')}}">
                                 📤 &nbsp; Upload File
                             </a>
 
-                            <a href="#">
+                            <a href="{{url_for('viewallfiles')}}">
                                 📁 &nbsp; View All Files
                             </a>
                         </div>
@@ -75,6 +68,15 @@
     </nav>
     <main>
         {% block content %}
+        <div class="flash-messages-container" style="text-align: center; font-weight: bold;">
+            {% with messages =get_flashed_messages() %}
+            {% if messages%}
+            {% for message in messages %}
+            {{message}}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
         <section class="welcome-section">
             <div class="container">
                 <div class="row justify-content-center">

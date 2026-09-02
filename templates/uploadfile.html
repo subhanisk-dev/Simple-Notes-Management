@@ -1,0 +1,31 @@
+{% extends "dashboard.html" %}
+{% block title %}<title>Upload File</title>{% endblock %}
+{% block addcss %}
+<link href="/static/addnotes.css" rel="stylesheet">{% endblock %}
+{% block content %}
+<div class="content">
+    <div class="note-card">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <h2 class="note-title">Upload File Data</h2>
+        <p class="note-subtitle">
+            Upload a file to be associated with your note
+        </p>
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">File</label>
+                <input type="file" id="file" name="file" required>
+            </div>
+            <button type="submit" class="add-button">
+                Upload File
+            </button>
+        </form>
+        <a href="/" class="back-link">Back to Home</a>
+    </div>
+</div>
+{% endblock %}
