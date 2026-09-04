@@ -9,7 +9,7 @@ def send_mail(to,subject,body):
         server=smtplib.SMTP_SSL('smtp.gmail.com',465)
         server.login(os.getenv("email"),os.getenv("email_api_key"))
         msg=EmailMessage()
-        msg['FROM']=os.getenv("email"),
+        msg['FROM']=os.getenv("email")
         msg['SUBJECT']=subject
         msg['To']=to
         msg.set_content(body)

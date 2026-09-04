@@ -50,12 +50,14 @@
                 <p style="color: azure;">{{session.get('user')}}</p>
                 <div class="right-area ms-auto d-flex align-items-center gap-2">
                     <div class="search-container input-group bg-white rounded overflow-hidden">
-                        <input type="text" class="form-control search-input border-0 shadow-none"
-                            placeholder="Search notes...">
+                        <form action="{{ url_for('usersearch') }}" method="post" class="d-flex align-items-center w-100">
+                            <input type="text"  name="data" class="form-control search-input border-0 shadow-none"
+                                placeholder="Search notes...">
+                            <button class="btn search-btn" type="button" onclick="this.form.submit()">
+                                🔍
+                            </button>
+                        </form>
 
-                        <button class="btn search-btn" type="button">
-                            🔍
-                        </button>
                     </div>
 
                     <a href="{{url_for('userlogout')}}"><button type="button" class="btn logout-btn px-3">

@@ -1,0 +1,86 @@
+{% extends "dashboard.html" %}
+{% block title %}<title>Notes</title>
+{% endblock %}
+{% block addcss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='viewallnotes.css') }}">{% endblock %}
+
+{% block content %}
+<main class="notes-page">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    {{ message }}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% if notesdata %}
+    <div class="notes-container">
+        <div style="text-align: center; font-weight: bold;">
+            {% with messages =get_flashed_messages() %}
+            {% if messages%}
+            {% for message in messages %}
+            {{message}}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <h1 class="notes-heading">Notes</h1>
+        <div class="notes-table-wrapper">
+            <table class="notes-table">
+                <thead class="notes-table-head">
+                    <tr class="notes-table-row">
+                        <th class="notes-table-header notes-id-column">Note ID</th>
+                        <th class="notes-table-header">Note Title</th>
+                        <th class="notes-table-header notes-date-column">Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in notesdata %}
+                    <tr class="notes-table-row">
+                        <td class="notes-table-data notes-id-column">{{i[0]}}</td>
+                        <td class="notes-table-data notes-heading-column">{{i[1]}}</td>
+                        <td class="notes-table-data notes-date-column">{{i[2]}}</td>
+                        <td><a href="{{ url_for('viewnotes', notesid=i[0]) }}">View</a></td>
+                        <td><a href="{{ url_for('updatenotes', notesid=i[0]) }}">Update</a></td>
+                        <td><a href="{{ url_for('delete_notes', notesid=i[0]) }}"
+                                onclick="return confirm('Are you sure you want to delete this note?')">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if filesdata %}
+    <div class="notes-table-wrapper">
+        <table class="notes-table">
+            <thead class="notes-table-head">
+                <tr class="notes-table-row">
+                    <th class="notes-table-header notes-id-column">File ID</th>
+                    <th class="notes-table-header">File Name</th>
+                    <th class="notes-table-header notes-date-column">Uploaded At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in filesdata %}
+                <tr class="notes-table-row">
+                    <td class="notes-table-data notes-id-column">{{i[0]}}</td>
+                    <td class="notes-table-data notes-heading-column">{{i[1]}}</td>
+                    <td class="notes-table-data notes-date-column">{{i[2]}}</td>
+                    <td><a href="{{ url_for('viewfile', filesid=i[0]) }}">View</a></td>
+                    <td><a href="#">Download</a></td>
+                    <td><a href="#" onclick="return confirm('Are you sure you want to delete this file?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

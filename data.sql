@@ -19,6 +19,8 @@
 -- Table structure for table `filesdata`
 --
 
+use `snmdb`;
+
 DROP TABLE IF EXISTS `filesdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -51,7 +53,7 @@ DROP TABLE IF EXISTS `notesdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notesdata` (
-  `notesid` int unsigned NOT NULL,
+  `notesid` int unsigned NOT NULL AUTO_INCREMENT,
   `notestitle` longtext,
   `notescontent` longtext,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -97,7 +99,7 @@ CREATE TABLE `userdata` (
 
 LOCK TABLES `userdata` WRITE;
 /*!40000 ALTER TABLE `userdata` DISABLE KEYS */;
-INSERT INTO `userdata` VALUES (1,'anusha','anusha@codegnan.com','111',NULL,NULL,'active'),(2,'sowmya','soumyatirunagari9@gmail.com','123','M6dN9g','2026-08-25 12:23:12','inactive');
+INSERT INTO `userdata` VALUES (1,'subhani','subhani@gmail.com','111',NULL,NULL,'active');
 /*!40000 ALTER TABLE `userdata` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

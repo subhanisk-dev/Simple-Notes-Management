@@ -1,9 +1,12 @@
 from turtle import title
 
-from flask import Flask,flash,render_template,request,redirect,url_for,session #create client-side-server data
+from flask import Flask,flash,render_template,request,redirect,url_for,session,send_file #create client-side-server data
 from flask_session import Session #Stores secure server side session
 
+from io import BytesIO
+
 import os
+import re
 from dotenv import load_dotenv
 load_dotenv()
 from otp import generate_otp
@@ -265,33 +268,164 @@ def delete_notes(notesid):
 
 @app.route('/uploadfile',methods=['GET','POST'])
 def uploadfile():
-    if not session.get('user'):
-        flash('To access dashboard pls login first')
-        return redirect(url_for('login'))
-    if request.method == 'POST':
-        filedata=request.files.get('file')
-        fdata=filedata.read()
-        filename=filedata.filename
-        mydb.ping(reconnect=True)
-        cursor = mydb.cursor(buffered=True)
-        cursor.execute("INSERT INTO filesdata (filename, filedata,added_by) VALUES (%s, %s, (SELECT userid FROM userdata WHERE useremail = %s))", (filename, fdata, session.get('user')))
-        mydb.commit()
-        cursor.close()
-        flash('File uploaded successfully')
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        if request.method == 'POST':
+            filedata=request.files.get('file')
+            fdata=filedata.read()
+            filename=filedata.filename
+            mydb.ping(reconnect=True)
+            cursor = mydb.cursor(buffered=True)
+            cursor.execute("INSERT INTO filesdata (filename, filedata,added_by) VALUES (%s, %s, (SELECT userid FROM userdata WHERE useremail = %s))", (filename, fdata, session.get('user')))
+            mydb.commit()
+            cursor.close()
+            flash('File uploaded successfully')
+            return redirect(url_for('dashboard'))
+        return render_template('uploadfile.html')
+    except Exception as e:
+        print("Error in uploading file", e)
+        flash("Couldn't upload file")
         return redirect(url_for('dashboard'))
-    return render_template('uploadfile.html')
 
 @app.route('/viewallfiles',methods=['GET'])
 def viewallfiles():
-    if not session.get('user'):
-        flash('To access dashboard pls login first')
-        return redirect(url_for('login'))
-    mydb.ping(reconnect=True)
-    cursor = mydb.cursor(buffered=True)
-    cursor.execute("SELECT filesid, filename, created_at FROM filesdata WHERE added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [session.get('user')])
-    files_data = cursor.fetchall()
-    cursor.close()
-    return render_template('viewallfiles.html', files_data=files_data)
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor = mydb.cursor(buffered=True)
+        cursor.execute("SELECT filesid, filename, created_at FROM filesdata WHERE added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [session.get('user')])
+        files_data = cursor.fetchall()
+        cursor.close()
+        return render_template('viewallfiles.html', files_data=files_data)
+    except Exception as e:
+        print("Error in fetching files", e)
+        flash("Couldn't fetch files")
+        return redirect(url_for('dashboard'))
+
+@app.route('/viewfile/<filesid>',methods=['GET'])
+def viewfile(filesid):
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor = mydb.cursor(buffered=True)
+        cursor.execute("SELECT filename, filedata FROM filesdata WHERE filesid = %s AND added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [filesid, session.get('user')])
+        file_data = cursor.fetchone()
+        cursor.close()
+        if not file_data:
+            flash('File not found')
+            return redirect(url_for('viewallfiles'))
+        return send_file(BytesIO(file_data[1]), as_attachment=False,download_name=file_data[0])
+    except Exception as e:
+        print("Error in fetching file", e)
+        flash("Couldn't fetch file")
+        return redirect(url_for('dashboard'))
+
+@app.route('/downloadfile/<filesid>',methods=['GET'])
+def downloadfile(filesid):
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor = mydb.cursor(buffered=True)
+        cursor.execute("SELECT filename, filedata FROM filesdata WHERE filesid = %s AND added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [filesid, session.get('user')])
+        file_data = cursor.fetchone()
+        cursor.close()
+        if not file_data:
+            flash('File not found')
+            return redirect(url_for('viewallfiles'))
+        return send_file(BytesIO(file_data[1]),as_attachment=True,download_name=file_data[0])
+    except Exception as e:
+        print("Error in downloading file", e)
+        flash("Couldn't download file")
+        return redirect(url_for('dashboard'))
+
+
+@app.route('/deletefile/<filesid>',methods=['GET'])
+def deletefile(filesid):
+    try:
+        if not session.get('user'):
+            flash('To access dashboard pls login first')
+            return redirect(url_for('login'))
+        mydb.ping(reconnect=True)
+        cursor = mydb.cursor(buffered=True)
+        cursor.execute("SELECT filesid FROM filesdata WHERE filesid = %s AND added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [filesid, session.get('user')])
+        file_data = cursor.fetchone()
+        if not file_data:
+            flash('File not found')
+            return redirect(url_for('viewallfiles'))
+        cursor.execute("DELETE FROM filesdata WHERE filesid = %s AND added_by = (SELECT userid FROM userdata WHERE useremail = %s)", [filesid, session.get('user')])
+        mydb.commit()
+        cursor.close()
+        flash('File deleted successfully')
+        return redirect(url_for('viewallfiles'))
+    except Exception as e:
+        print("Error in deleting file", e)
+        flash("Couldn't delete file")
+        return redirect(url_for('dashboard'))
+
+@app.route('/usersearch',methods=['GET','POST'])
+def usersearch():
+    try:
+        if not session.get('user'):
+                flash('To access dashboard pls login first')
+                return redirect(url_for('login'))
+        searchdata=request.form.get('data')
+        strg=['A-Za-z0-9']
+        pattern = re.compile(f'^{strg}',re.IGNORECASE)
+        if searchdata and pattern.match(searchdata):
+            mydb.ping(reconnect=True)
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute("SELECT notesid, notestitle, created_at FROM notesdata INNER JOIN userdata ON notesdata.added_by=userdata.userid WHERE userdata.useremail=%s AND notesdata.notestitle LIKE %s", [session.get('user'), searchdata+'%'])
+            notesdata=cursor.fetchall()
+            cursor.execute("SELECT filesid, filename, created_at FROM filesdata WHERE added_by = (SELECT userid FROM userdata WHERE useremail = %s) AND filesdata.filename LIKE %s", [session.get('user'), f'%{searchdata}%'])
+            filesdata=cursor.fetchall()
+            cursor.close()
+            return render_template('searchresults.html',notesdata=notesdata,filesdata=filesdata)
+        return render_template('usersearch.html')
+    except Exception as e:
+        print("Error in Searching",e)
+        flash("Couldn't Search")
+        return redirect(url_for('dashboard'))
+
+@app.route('/forgotpassword',methods=['GET','POST'])
+def forgotpassword():
+    try:
+        if request.method=='POST':
+            forgot_email=request.form.get("email")
+            mydb.ping(reconnect=True)
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute("select account_status from userdata where useremail=%s",[forgot_email])
+            db_response=cursor.fetchone()
+            if not db_response:
+                flash("Could Not Fetch userdata")
+                return redirect(url_for('forgotpassword'))
+            if db_response=='inactive':
+                flash("Please Register Again")
+                return redirect(url_for('register'))
+            if db_response=='suspended':
+                flash("This email is suspended")
+                return redirect(url_for('register'))
+            resetlink=f"Use this Link to password update {url_for('newpassword',data=forgot_email,_external=True)}"
+            subject="Reset Link for Notes"
+            send_mail(to=forgot_email,subject=subject,body=resetlink)
+            flash("Sending Mail pls Check")
+            return redirect(url_for('forgotpassword'))
+        return render_template('forgotpassword.html')
+    except Exception as e:
+        print("Error",e)
+        flash("Couldn't Retireve")
+        return redirect(url_for('dashboard'))
+
+@app.route('/newpassword/<data>',methods=['GET','POST'])
+def newpassword(data):
+    return 'data'
 
 @app.route('/userlogout',methods=['GET'])
 def userlogout():

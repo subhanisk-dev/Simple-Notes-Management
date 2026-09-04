@@ -33,8 +33,9 @@
                         <td class="notes-table-data notes-id-column">{{i[0]}}</td>
                         <td class="notes-table-data notes-heading-column">{{i[1]}}</td>
                         <td class="notes-table-data notes-date-column">{{i[2]}}</td>
-                        <td><a href="#">Download</a></td>
-                        <td><a href="#"
+                        <td><a href="{{ url_for('viewfile', filesid=i[0]) }}">View</a></td>
+                        <td><a href="{{ url_for('downloadfile', filesid=i[0]) }}">Download</a></td>
+                        <td><a href="{{ url_for('deletefile', filesid=i[0]) }}"
                                 onclick="return confirm('Are you sure you want to delete this file?')">Delete</a></td>
                     </tr>
                     {% endfor %}
