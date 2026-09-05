@@ -1,6 +1,6 @@
 from turtle import title
 
-from flask import Flask,flash,render_template,request,redirect,url_for,session,send_file #create client-side-server data
+from flask import Flask,flash,render_template,request,redirect,url_for,session,send_file,jsonify #create client-side-server data
 from flask_session import Session #Stores secure server side session
 
 from io import BytesIO
@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 from otp import generate_otp
 from cmail import send_mail
+from stoken import entoken,dntoken
+
 from datetime import datetime,timedelta
 
 from mysql.connector import (connection)
@@ -412,7 +414,7 @@ def forgotpassword():
             if db_response=='suspended':
                 flash("This email is suspended")
                 return redirect(url_for('register'))
-            resetlink=f"Use this Link to password update {url_for('newpassword',data=forgot_email,_external=True)}"
+            resetlink=f"Use this Link to password update {url_for('newpassword',data=entoken(forgot_email),_external=True)}"
             subject="Reset Link for Notes"
             send_mail(to=forgot_email,subject=subject,body=resetlink)
             flash("Sending Mail pls Check")
@@ -423,9 +425,33 @@ def forgotpassword():
         flash("Couldn't Retireve")
         return redirect(url_for('dashboard'))
 
-@app.route('/newpassword/<data>',methods=['GET','POST'])
+@app.route('/newpassword/<data>',methods=['GET','PUT'])
 def newpassword(data):
-    return 'data'
+    try:
+        de_serialised_email=dntoken(data)
+        if request.method=='PUT':
+            print(request.get_json())
+            newpassword=request.get_json()['password']
+            confirmpassword=request.get_json()['cpassword']
+            if (not newpassword) or (not confirmpassword):
+                return jsonify({"status":"failed","message":"password or confirmpassword required"}),400
+            mydb.ping(reconnect=True)
+            cursor=mydb.cursor(buffered=True)
+            cursor.execute('select account_status from userdata where useremail=%s',[de_serialised_email])
+            db_response=cursor.fetchone() #('active',) or None
+            if not  db_response:
+                return jsonify({"status":"failed","message":"User not found"}),400
+            if db_response[0]=='Inactive':
+                return jsonify({"status":"failed","message":"User not Verified"}),400
+            if db_response[0]=='suspended':
+                return jsonify({"status":"failed","message":"User email suspended"}),400
+            cursor.execute('update userdata set userpassword=%s where useremail=%s',[newpassword,de_serialised_email])
+            mydb.commit()
+            return jsonify({"status":"ok","message":"password updated successfully"}),200
+        return render_template('newpassword.html',token=data)  
+    except Exception as e:
+        print(e)
+        return jsonify({"status":"failed","message":f"{str(e)}"}),500
 
 @app.route('/userlogout',methods=['GET'])
 def userlogout():
